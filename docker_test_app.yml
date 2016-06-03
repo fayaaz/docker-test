@@ -35,7 +35,7 @@
 
     - name: Create a flask container
       docker_container:
-        name: flaskcontainer
+        name: "flaskcontainer{{item}}"
         image: fayaaz/debian-ansible:jessie
         interactive: yes
         tty: yes
@@ -43,14 +43,14 @@
         detach: yes
         network_mode: bridge
         exposed_ports: "8000"
-        published_ports: "8000:8000"
         links:
         - "mpdcontainer:mpd"
         volumes:
         - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
         command: bash -c "apt-get update; cd /opt/ansible-playbooks; ansible-playbook -i ./hosts.ini -c local flask.yml; bash"
+      with_sequence: count=4
 
-    - name: Create an nginx
+    - name: Create an nginx container
       docker_container:
         name: nginxcontainer
         image: fayaaz/debian-ansible:jessie
@@ -59,6 +59,13 @@
         state: started
         detach: yes
         network_mode: bridge
+        links:
+        - 'flaskcontainer1:flask1'
+        - 'flaskcontainer2:flask2'
+        - 'flaskcontainer3:flask3'
+        - 'flaskcontainer4:flask4'
+        exposed_ports: "80"
+        published_ports: "80:80"
         volumes:
         - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
-        command: bash -c "apt-get update; bash"
+        command: bash -c "apt-get update; cd /opt/ansible-playbooks; ansible-playbook -i ./hosts.ini -c local nginx.yml; bash"

@@ -37,7 +37,10 @@
   - fstab
 
 - name: Clone mpid git repo
-  git: repo=https://bitbucket.org/fayaaz_ahmed/mpid.git dest=/var/www/mpid version=fayaaz-new-library-views
+  git:
+    repo: https://bitbucket.org/fayaaz_ahmed/mpid.git
+    dest: /var/www/mpid
+    version: dockerize
   notify:
   - Restart supervisor
 

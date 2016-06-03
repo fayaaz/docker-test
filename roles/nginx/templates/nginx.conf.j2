@@ -1,0 +1,27 @@
+upstream flaskapp {
+        least_conn;
+        server flaskcontainer1:8000;
+        server flaskcontainer2:8000;
+        server flaskcontainer3:8000;
+        server flaskcontainer4:8000;
+}
+
+server {
+    listen 80;
+    root '/var/www/mpid/';
+    access_log /var/log/mpid/access.log;
+    error_log /var/log/mpid/error.log;
+    location = /{
+        rewrite ^ /static/templates/index.html break;
+        }
+    location / {
+        proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_pass http://flaskapp;
+        break;
+        }
+    location /static/ {
+        alias '/var/www/mpid/static/';
+    }
+}
