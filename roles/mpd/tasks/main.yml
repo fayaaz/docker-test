@@ -6,6 +6,12 @@
     state: installed
     update_cache: true
 
+- name: Copy mpd conf
+  copy:
+    src: mpd.conf
+    dest: /etc/mpd.conf
+  notify: restart mpd
+
 - name: Install mpc
   apt:
     pkg: mpc

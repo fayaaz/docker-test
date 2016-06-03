@@ -31,6 +31,7 @@
         volumes:
         - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
         - "/dev/snd"
+        - "/mnt/Music:/var/lib/mpd/music"
         command: bash -c "apt-get update; cd /opt/ansible-playbooks; ansible-playbook -i ./hosts.ini -c local mpd.yml; bash"
 
     - name: Create a flask container
@@ -47,6 +48,7 @@
         - "mpdcontainer:mpd"
         volumes:
         - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
+
         command: bash -c "apt-get update; cd /opt/ansible-playbooks; ansible-playbook -i ./hosts.ini -c local flask.yml; bash"
       with_sequence: count=4
 
