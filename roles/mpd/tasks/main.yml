@@ -1,0 +1,19 @@
+---
+
+- name: Install mpd
+  apt:
+    pkg: mpd
+    state: installed
+    update_cache: true
+
+- name: Install mpc
+  apt:
+    pkg: mpc
+    state: installed
+    update_cache: true
+
+- name: Install mpdscribble
+  apt:
+    pkg: mpdscribble
+    state: installed
+    update_cache: true

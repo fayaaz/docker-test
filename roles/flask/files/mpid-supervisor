@@ -1,0 +1,7 @@
+[program:gunicorn]
+command=/usr/local/bin/gunicorn mpid:app -w 1 -b 0.0.0.0:8000
+directory=/var/www/mpid
+user=root
+autostart=true
+autorestart=true
+redirect_stderr=true

@@ -1,0 +1,64 @@
+---
+- hosts: docker-test
+  sudo: yes
+  roles:
+
+  - role: docker-install
+
+  - role: ntp
+    ntp_config_server: [0.pool.ntp.org 1.pool.ntp.org]
+    ntp_enabled: true
+    ntp_config_restrict: []
+    ntp_config_listen: []
+
+  tasks:
+    - name: Sync Ansible playbooks
+      copy:
+        src: "./"
+        dest: "/opt/ansible-playbooks/"
+
+    - name: Create an mpd container
+      docker_container:
+        name: mpdcontainer
+        image: fayaaz/debian-ansible:jessie
+        interactive: yes
+        tty: yes
+        state: started
+        detach: yes
+        network_mode: bridge
+        exposed_ports: "6600"
+        published_ports: "6600:6600"
+        volumes:
+        - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
+        - "/dev/snd"
+        command: bash -c "apt-get update; cd /opt/ansible-playbooks; ansible-playbook -i ./hosts.ini -c local mpd.yml; bash"
+
+    - name: Create a flask container
+      docker_container:
+        name: flaskcontainer
+        image: fayaaz/debian-ansible:jessie
+        interactive: yes
+        tty: yes
+        state: started
+        detach: yes
+        network_mode: bridge
+        exposed_ports: "8000"
+        published_ports: "8000:8000"
+        links:
+        - "mpdcontainer:mpd"
+        volumes:
+        - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
+        command: bash -c "apt-get update; cd /opt/ansible-playbooks; ansible-playbook -i ./hosts.ini -c local flask.yml; bash"
+
+    - name: Create an nginx
+      docker_container:
+        name: nginxcontainer
+        image: fayaaz/debian-ansible:jessie
+        interactive: yes
+        tty: yes
+        state: started
+        detach: yes
+        network_mode: bridge
+        volumes:
+        - "/opt/ansible-playbooks/:/opt/ansible-playbooks/"
+        command: bash -c "apt-get update; bash"

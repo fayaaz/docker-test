@@ -1,0 +1,49 @@
+- name: Install git
+  apt:
+    pkg: git
+    state: installed
+    update_cache: true
+
+- name: Install supervisor
+  apt:
+    pkg: supervisor
+    state: installed
+
+
+- name: Copy supervisor conf file
+  copy:
+    src: mpid-supervisor
+    dest: /etc/supervisor/conf.d/gunicorn.conf
+  notify: Restart supervisor
+
+- name: Install python-dev
+  apt:
+    pkg: python-dev
+    state: installed
+
+- name: Install python-pip
+  apt:
+    pkg: python-pip
+    state: installed
+
+- name: Install python libraries with pip
+  pip:
+    name: "{{item}}"
+  with_items:
+  - flask
+  - python-mpd2
+  - wpa_config
+  - gunicorn
+  - fstab
+
+- name: Clone mpid git repo
+  git: repo=https://bitbucket.org/fayaaz_ahmed/mpid.git dest=/var/www/mpid version=fayaaz-new-library-views
+  notify:
+  - Restart supervisor
+
+- name: Ensure log dir exists
+  file: name=/var/log/mpid state=directory
+
+- name: Ensure log file exists
+  file: name=/var/log/mpid/access.log state=touch
+  notify: Restart nginx

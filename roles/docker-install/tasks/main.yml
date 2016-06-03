@@ -1,0 +1,40 @@
+---
+- name: Add Docker repository
+  yum_repository:
+    name: "docker"
+    description: "Docker Repository"
+    baseurl: "https://yum.dockerproject.org/repo/main/centos/$releasever/"
+    gpgcheck: yes
+    gpgkey: "https://yum.dockerproject.org/gpg"
+    enabled: yes
+  when: ansible_os_family == 'RedHat'
+
+- name: Install docker-engine
+  yum:
+    name: docker-engine
+    update_cache: yes
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Install epel
+  yum:
+    name: epel-release
+    update_cache: yes
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Install pip
+  yum:
+    name: python-pip
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Install docker-py
+  pip:
+    name: docker-py
+    state: present
+
+- name: Start Docker Service
+  service:
+    name: docker
+    state: started
